@@ -1,14 +1,14 @@
 /*
  *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
- * 
- *  GraphHopper GmbH licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *
+ *  GraphHopper GmbH licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ import java.util.*;
  * @author Peter Karich
  */
 public class PathWrapper {
-    private final List<Throwable> errors = new ArrayList<Throwable>(4);
+    private final List<Throwable> errors = new ArrayList<>(4);
     private List<String> description;
     private double distance;
     private double ascend;
@@ -198,24 +198,13 @@ public class PathWrapper {
     }
 
     /**
-     * Calculates the bounding box of this route response
+     * Calculates the 2D bounding box of this route
      */
-    public BBox calcRouteBBox(BBox _fallback) {
+    public BBox calcBBox2D() {
         check("calcRouteBBox");
-        BBox bounds = BBox.createInverse(_fallback.hasElevation());
-        int len = pointList.getSize();
-        if (len == 0)
-            return _fallback;
-
-        for (int i = 0; i < len; i++) {
-            double lat = pointList.getLatitude(i);
-            double lon = pointList.getLongitude(i);
-            if (bounds.hasElevation()) {
-                double ele = pointList.getEle(i);
-                bounds.update(lat, lon, ele);
-            } else {
-                bounds.update(lat, lon);
-            }
+        BBox bounds = BBox.createInverse(false);
+        for (int i = 0; i < pointList.getSize(); i++) {
+            bounds.update(pointList.getLatitude(i), pointList.getLongitude(i));
         }
         return bounds;
     }

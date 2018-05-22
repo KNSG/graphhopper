@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -26,7 +27,7 @@ import static org.junit.Assert.*;
  */
 public class GraphHopperWebIT {
 
-    public static final String KEY = "614b8305-b4db-48c9-bf4a-40de90919939";
+    public static final String KEY = System.getProperty("key", "78da6e9a-273e-43d1-bdda-8f24e007a1fa");
 
     private final GraphHopperWeb gh = new GraphHopperWeb();
     private final GraphHopperMatrixWeb ghMatrix = new GraphHopperMatrixWeb();
@@ -52,8 +53,8 @@ public class GraphHopperWebIT {
         PathWrapper alt = res.getBest();
         isBetween(200, 250, alt.getPoints().size());
         isBetween(11000, 12000, alt.getDistance());
-        isBetween(310, 320, alt.getAscend());
-        isBetween(235, 245, alt.getDescend());
+        isBetween(240, 270, alt.getAscend());
+        isBetween(180, 200, alt.getDescend());
         isBetween(1000, 1500, alt.getRouteWeight());
 
 
@@ -67,10 +68,10 @@ public class GraphHopperWebIT {
 
     @Test
     public void testAlternativeRoute() {
-        // https://graphhopper.com/maps/?point=52.044124%2C10.378346&point=52.043847%2C10.381994&algorithm=alternative_route&ch.disable=true
+        // https://graphhopper.com/maps/?point=52.042989%2C10.373926&point=52.042289%2C10.384043&algorithm=alternative_route&ch.disable=true
         GHRequest req = new GHRequest().
-                addPoint(new GHPoint(52.044124,10.378346)).
-                addPoint(new GHPoint(52.043847,10.381994));
+                addPoint(new GHPoint(52.042989, 10.373926)).
+                addPoint(new GHPoint(52.042289, 10.384043));
         req.setAlgorithm("alternative_route");
         req.getHints().put("instructions", true);
         req.getHints().put("calc_points", true);
@@ -82,13 +83,13 @@ public class GraphHopperWebIT {
 
         PathWrapper path = paths.get(0);
         isBetween(5, 20, path.getPoints().size());
-        isBetween(400, 500, path.getDistance());
-        assertEquals("Wiesenstraße", path.getDescription().get(0));
+        isBetween(1000, 1100, path.getDistance());
+        assertTrue("expected: " + path.getDescription().get(0), Arrays.asList("Wiesenstraße", "Hasenspringweg").contains(path.getDescription().get(0)));
 
         path = paths.get(1);
-        isBetween(3, 15, path.getPoints().size());
-        isBetween(350, 450, path.getDistance());
-        assertEquals("Schlopweg", path.getDescription().get(0));
+        isBetween(20, 30, path.getPoints().size());
+        isBetween(800, 900, path.getDistance());
+        assertTrue("expected: " + path.getDescription().get(0), Arrays.asList("Jacobistraße", "Ludwig-Gercke-Straße").contains(path.getDescription().get(0)));
     }
 
     @Test

@@ -1,14 +1,14 @@
 /*
  *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
- * 
- *  GraphHopper GmbH licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *
+ *  GraphHopper GmbH licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -112,6 +112,8 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
             String debug = ", algoInit:" + sw.stop().getSeconds() + "s";
 
             sw = new StopWatch().start();
+
+            // calculate paths
             List<Path> tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode());
             debug += ", " + algo.getName() + "-routing:" + sw.stop().getSeconds() + "s";
             if (tmpPathList.isEmpty())
@@ -136,6 +138,7 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
                 throw new IllegalArgumentException("No path found due to maximum nodes exceeded " + algoOpts.getMaxVisitedNodes());
 
             visitedNodesSum += algo.getVisitedNodes();
+            altResponse.addDebugInfo("visited nodes sum: " + visitedNodesSum);
             fromQResult = toQResult;
         }
 
