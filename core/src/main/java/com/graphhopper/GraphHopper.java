@@ -514,9 +514,8 @@ public class GraphHopper implements GraphHopperAPI {
     }
 
     /**
-     * Reads configuration from a CmdArgs object. Which can be manually filled, or via main(String[]
-     * args) ala CmdArgs.read(args) or via configuration file ala
-     * CmdArgs.readFromConfig("config.properties", "graphhopper.config")
+     * Reads the configuration from a CmdArgs object which can be manually filled, or via 
+     * CmdArgs.read(String[] args)
      */
     public GraphHopper init(CmdArgs args) {
         args.merge(CmdArgs.readFromSystemProperties());
@@ -932,7 +931,7 @@ public class GraphHopper implements GraphHopperAPI {
         if (hintsMap.has(Routing.BLOCK_AREA)) {
             String blockAreaStr = hintsMap.get(Parameters.Routing.BLOCK_AREA, "");
             GraphEdgeIdFinder.BlockArea blockArea = new GraphEdgeIdFinder(graph, locationIndex).
-                    parseBlockArea(blockAreaStr, new DefaultEdgeFilter(encoder), hintsMap.getDouble("block_area.edge_id_max_area", 1000 * 1000));
+                    parseBlockArea(blockAreaStr, DefaultEdgeFilter.allEdges(encoder), hintsMap.getDouble("block_area.edge_id_max_area", 1000 * 1000));
             return new BlockAreaWeighting(weighting, blockArea);
         }
 
@@ -977,8 +976,7 @@ public class GraphHopper implements GraphHopperAPI {
         readLock.lock();
         try {
             if (!encodingManager.supports(vehicle))
-                throw new IllegalArgumentException("Vehicle " + vehicle + " unsupported. "
-                        + "Supported are: " + getEncodingManager());
+                throw new IllegalArgumentException("Vehicle not supported: " + vehicle + ". Supported are: " + encodingManager.toString());
 
             HintsMap hints = request.getHints();
             String tModeStr = hints.get("traversal_mode", traversalMode.toString());

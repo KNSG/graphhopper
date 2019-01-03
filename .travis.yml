@@ -1,5 +1,5 @@
 language: java
-sudo: false
+sudo: true
 dist: trusty
 
 env:
@@ -11,16 +11,18 @@ env:
 
 matrix:
   include:
-    - jdk: oraclejdk8
     - jdk: openjdk8
-    - env: JDK='OpenJDK 10'
-      install: . ./install-jdk.sh -F 10 -C
+    # spotbugs is not jdk 12 ready yet
+#    - env: JDK='OpenJDK 12'
+#      install: . ./install-jdk.sh -F 12 -C
+    - env: JDK='OpenJDK 11'
+      install: . ./install-jdk.sh -F 11 -C
     
 # avoid default dependency command for maven, 'true' means 'return true' and continue
 install: true
 
 # store them into travis via https://dracoblue.net/dev/uploading-snapshots-and-releases-to-maven-central-with-travis/
-# gpg -a --export-secret-keys your@email.org | base64 -w 0
+# gpg --export-secret-keys <keyID> | base64 -w 0
 # gpg --export-ownertrust | base64 -w 0
 before_install:
   - if [ ! -z "$GPG_SECRET_KEYS" ]; then echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import; fi
@@ -37,23 +39,23 @@ before_script:
   - "mvn --version"
   - "if [ -z \"$API_KEY\" ]; then API_KEY=78da6e9a-273e-43d1-bdda-8f24e007a1fa; fi" # change in GraphHopperWebIT too
 script:
-  - "mvn -Dkey=$API_KEY clean test verify checkstyle:check findbugs:check forbiddenapis:check -B"
+  - "mvn -Dkey=$API_KEY clean test verify checkstyle:check spotbugs:check forbiddenapis:check -B"
 
 after_success:
-  # deploy snapshot artifacts to sonatype and if tagged deploy then release to maven central
-  - if [ "$TRAVIS_JDK_VERSION" == "openjdk8" ] && [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-        mvn deploy --settings core/files/settings.xml -DskipTests=true -B;
-    elif [ "$TRAVIS_JDK_VERSION" == "openjdk8" ] && [ "$TRAVIS_TAG" != "" ]; then
+  # if tagged deploy then release to maven central or deploy snapshot artifacts to sonatype 
+  - if [ "$TRAVIS_JDK_VERSION" == "openjdk8" ] && [ "$TRAVIS_TAG" != "" ]; then
         echo "release to maven central";
         mvn versions:set -DnewVersion=$TRAVIS_TAG -DgenerateBackupPoms=false;
         mvn deploy -P release --settings core/files/settings.xml -DskipTests=true -B;
+    elif [ "$TRAVIS_JDK_VERSION" == "openjdk8" ] && [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+        mvn deploy --settings core/files/settings.xml -DskipTests=true -B;
     else
         echo "Not deploying artifacts for $TRAVIS_BRANCH";
     fi
 
 notifications:
   email:
-    - secure: l7/fjqL0c/9UcULXdhaKxsroZMg07nfNDiOHRBf7YKf8wrKdH52Z5kP7E10+a8iD/ieLD+ZaZPlom1bE7HymE1bVkp3d17Ezha47W5sdyOOb3NBDpg8olS4TkehOKo3AQhLXSfF6QGtipxY8Iy9QknXHngQOrcoGYiOlzCZ3BTQ=
+    - $EMAIL
 
 cache:
   directories:

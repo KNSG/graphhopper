@@ -527,8 +527,8 @@ public class RoutingAlgorithmWithOSMIT {
             // avoid that path.getDistance is too different to path.getPoint.calcDistance
             hopper.setWayPointMaxDistance(0);
 
-            // always enable landmarks
-            hopper.getLMFactoryDecorator().addWeighting(weightStr).
+            // always enable landmarks, add maximum information to reduce warnings
+            hopper.getLMFactoryDecorator().addWeighting(weightStr+"|maximum=60000").
                     setEnabled(true).setDisablingAllowed(true);
 
             if (withCH)
@@ -547,7 +547,7 @@ public class RoutingAlgorithmWithOSMIT {
 
             Collection<AlgoHelperEntry> prepares = RoutingAlgorithmIT.createAlgos(hopper, hints, tMode);
 
-            EdgeFilter edgeFilter = new DefaultEdgeFilter(encoder);
+            EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
             for (AlgoHelperEntry entry : prepares) {
                 algoEntry = entry;
                 LocationIndex idx = entry.getIdx();
@@ -595,7 +595,7 @@ public class RoutingAlgorithmWithOSMIT {
         // also the preparing is too costly to be called for every thread
         int algosLength = 2;
         final Weighting weighting = new ShortestWeighting(encodingManager.getEncoder("car"));
-        final EdgeFilter filter = new DefaultEdgeFilter(carEncoder);
+        final EdgeFilter filter = DefaultEdgeFilter.allEdges(carEncoder);
         for (int no = 0; no < MAX; no++) {
             for (int instanceNo = 0; instanceNo < instances.size(); instanceNo++) {
                 String[] algos = new String[]{

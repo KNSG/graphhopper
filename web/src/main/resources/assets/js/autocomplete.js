@@ -104,7 +104,6 @@ AutoComplete.prototype.showListForIndex = function (ghRequest, routeIfAllResolve
 
     var options = {
         containerClass: "autocomplete",
-        /* as we use can potentially use jsonp we need to set the timeout to a small value */
         timeout: 1000,
         /* avoid too many requests when typing quickly */
         deferRequestBy: 5,
@@ -160,15 +159,6 @@ AutoComplete.prototype.showListForIndex = function (ghRequest, routeIfAllResolve
     };
 
     myAutoDiv.autocomplete(options);
-
-    // with the following more stable code we cannot click on suggestions any longer
-//    $("#" + fromOrTo + "Input").focusout(function() {
-//        myAutoDiv.autocomplete().disable();
-//        myAutoDiv.autocomplete().hide();
-//    });
-//    $("#" + fromOrTo + "Input").focusin(function() {
-//        myAutoDiv.autocomplete().enable();
-//    });
 };
 
 AutoComplete.prototype.createStub = function () {

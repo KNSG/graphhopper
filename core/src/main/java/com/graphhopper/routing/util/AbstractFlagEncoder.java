@@ -70,9 +70,6 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     // This value determines the maximal possible speed of any road regardless the maxspeed value
     // lower values allow more compact representation of the routing graph
     protected int maxPossibleSpeed;
-    /* processing properties (to be initialized lazy when needed) */
-    protected EdgeExplorer edgeOutExplorer;
-    protected EdgeExplorer edgeInExplorer;
     /* Edge Flag Encoder fields */
     private long nodeBitMask;
     private long wayBitMask;
@@ -224,8 +221,10 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
 
     /**
      * Parse tags on nodes. Node tags can add to speed (like traffic_signals) where the value is
-     * strict negative or blocks access (like a barrier), then the value is strict positive.This
+     * strict negative or blocks access (like a barrier), then the value is strictly positive. This
      * method is called in the second parsing step.
+     *
+     * @return encoded values or 0 if not blocking or no value stored
      */
     public long handleNodeTags(ReaderNode node) {
         // absolute barriers always block
@@ -487,7 +486,7 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
             }
 
         if (durationInHours == 0) {
-            if(estimatedLength != null && estimatedLength.doubleValue() <= 300)
+            if (estimatedLength != null && estimatedLength.doubleValue() <= 300)
                 return speedEncoder.factor / 2;
             // unknown speed -> put penalty on ferry transport
             return UNKNOWN_DURATION_FERRY_SPEED;
